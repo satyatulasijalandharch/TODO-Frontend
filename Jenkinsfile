@@ -83,7 +83,7 @@ pipeline {
 
                         // Git commands to stage, commit, and push the changes
                         sh 'git add .'
-                        sh "git commit -m 'Update image to ${IMAGE_TAG}'"
+                        sh "git commit -m 'Frontend image updated to ${IMAGE_TAG}'"
                         sh "git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main"
                     }
                 }
