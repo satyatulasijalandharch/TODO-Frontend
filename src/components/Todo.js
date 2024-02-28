@@ -1,6 +1,5 @@
 import axios from "axios";
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 function Todo() {
   const [todoList, setTodoList] = useState([]);
@@ -12,16 +11,18 @@ function Todo() {
   const [newDeadline, setNewDeadline] = useState("");
   const [editedDeadline, setEditedDeadline] = useState("");
 
-  // Fetch tasks from database
+  const backendUrl =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:3005";
+
+  // Fetch tasks from the backend
   useEffect(() => {
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:3001";
     axios
       .get(`${backendUrl}/getTodoList`)
       .then((result) => {
         setTodoList(result.data);
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [backendUrl]); // Include backendUrl as a dependency
 
   // Function to toggle the editable state for a specific row
   const toggleEditable = (id) => {
@@ -39,14 +40,13 @@ function Todo() {
     }
   };
 
-  // Function to add task to the database
+  // Function to add task to the backend
   const addTask = (e) => {
     e.preventDefault();
     if (!newTask || !newStatus || !newDeadline) {
       alert("All fields must be filled out.");
       return;
     }
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:3001";
     axios
       .post(`${backendUrl}/addTodoList`, {
         task: newTask,
@@ -60,7 +60,7 @@ function Todo() {
       .catch((err) => console.log(err));
   };
 
-  // Function to save edited data to the database
+  // Function to save edited data to the backend
   const saveEditedTask = (id) => {
     const editedData = {
       task: editedTask,
@@ -74,10 +74,9 @@ function Todo() {
       return;
     }
 
-    // Updating edited data to the database through updateById API
-    const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:3001";
+    // Updating edited data to the backend through updateById API
     axios
-      .post(`${backendUrl}/updateTodoList/` + id, editedData)
+      .post(`${backendUrl}/updateTodoList/${id}`, editedData)
       .then((result) => {
         console.log(result);
         setEditableId(null);
@@ -89,11 +88,10 @@ function Todo() {
       .catch((err) => console.log(err));
   };
 
-  // Delete task from database
-  const backendUrl = process.env.BACKEND_URL || "http://127.0.0.1:3001";
+  // Function to delete task from the backend
   const deleteTask = (id) => {
     axios
-      .delete(`${backendUrl}/deleteTodoList/` + id)
+      .delete(`${backendUrl}/deleteTodoList/${id}`)
       .then((result) => {
         console.log(result);
         window.location.reload();
@@ -233,4 +231,5 @@ function Todo() {
     </div>
   );
 }
+
 export default Todo;
