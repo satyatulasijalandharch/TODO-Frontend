@@ -10,9 +10,9 @@ function Todo() {
   const [newStatus, setNewStatus] = useState("");
   const [newDeadline, setNewDeadline] = useState("");
   const [editedDeadline, setEditedDeadline] = useState("");
+  const [connectionStatus, setConnectionStatus] = useState("");
 
-  const backendUrl =
-    process.env.REACT_APP_BACKEND_URL || "http://localhost:3005";
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:3001";
 
   // Fetch tasks from the backend
   useEffect(() => {
@@ -20,9 +20,13 @@ function Todo() {
       .get(`${backendUrl}/getTodoList`)
       .then((result) => {
         setTodoList(result.data);
+        setConnectionStatus("Connected to backend");
       })
-      .catch((err) => console.log(err));
-  }, [backendUrl]); // Include backendUrl as a dependency
+      .catch((err) => {
+        console.log(err);
+        setConnectionStatus("Failed to connect to backend");
+      });
+  }, [backendUrl]);
 
   // Function to toggle the editable state for a specific row
   const toggleEditable = (id) => {
@@ -40,7 +44,7 @@ function Todo() {
     }
   };
 
-  // Function to add task to the backend
+  // Function to add task to the database
   const addTask = (e) => {
     e.preventDefault();
     if (!newTask || !newStatus || !newDeadline) {
@@ -60,7 +64,7 @@ function Todo() {
       .catch((err) => console.log(err));
   };
 
-  // Function to save edited data to the backend
+  // Function to save edited data to the database
   const saveEditedTask = (id) => {
     const editedData = {
       task: editedTask,
@@ -74,9 +78,8 @@ function Todo() {
       return;
     }
 
-    // Updating edited data to the backend through updateById API
     axios
-      .post(`${backendUrl}/updateTodoList/${id}`, editedData)
+      .post(`${backendUrl}/updateTodoList/` + id, editedData)
       .then((result) => {
         console.log(result);
         setEditableId(null);
@@ -88,10 +91,10 @@ function Todo() {
       .catch((err) => console.log(err));
   };
 
-  // Function to delete task from the backend
+  // Delete task from database
   const deleteTask = (id) => {
     axios
-      .delete(`${backendUrl}/deleteTodoList/${id}`)
+      .delete(`${backendUrl}/deleteTodoList/` + id)
       .then((result) => {
         console.log(result);
         window.location.reload();
@@ -101,6 +104,13 @@ function Todo() {
 
   return (
     <div className="container mt-5">
+      <div className="row">
+        <div className="col-md-12">
+          <div className="alert alert-info" role="alert">
+            {connectionStatus}
+          </div>
+        </div>
+      </div>
       <div className="row">
         <div className="col-md-7">
           <h2 className="text-center">Todo List</h2>
