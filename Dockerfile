@@ -14,10 +14,10 @@ RUN npm install
 COPY . .
 
 # Expose port 3000 for external access
-EXPOSE 3000
+# EXPOSE 3000
 
-# Set the environment variable
-ENV BACKEND_URL=http://127.0.0.1:3002
+# # Set the environment variable
+# ENV BACKEND_URL=http://127.0.0.1:3002
 
 # Start the application
 CMD ["npm", "start"]
