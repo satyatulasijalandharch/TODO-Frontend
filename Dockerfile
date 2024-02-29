@@ -7,6 +7,11 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
+# Install the 'tzdata' package
+RUN apk --no-cache add tzdata
+
+# Set the timezone to Asia/Kolkata
+ENV TZ Asia/Kolkata
 # Install app dependencies
 RUN npm install
 
