@@ -13,7 +13,7 @@ function Todo() {
   const [connectionStatus, setConnectionStatus] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://api.mrstjch.com";
 
   const handleErrors = (error) => {
     console.error("Error:", error);
