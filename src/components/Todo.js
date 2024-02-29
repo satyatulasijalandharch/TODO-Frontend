@@ -12,7 +12,7 @@ function Todo() {
   const [editedDeadline, setEditedDeadline] = useState("");
   const [connectionStatus, setConnectionStatus] = useState("");
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || "https://api.mrstjch.com";
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;// || "https://api.mrstjch.com";
 
   // Fetch tasks from the backend
   useEffect(() => {
