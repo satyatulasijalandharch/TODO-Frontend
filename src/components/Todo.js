@@ -20,6 +20,19 @@ function Todo() {
     setConnectionStatus("Failed to connect to the backend");
   };
 
+  const statusOptions = [
+    "Pending/To-Do",
+    "In Progress/Doing",
+    "Completed/Done",
+    "Overdue/Late",
+    "Blocked/On Hold",
+    "Canceled/Rejected",
+    "Deferred",
+    "Review",
+    "Testing/QA",
+    "Backlog",
+  ];
+
   // Fetch tasks from the backend
   useEffect(() => {
     axios
@@ -53,6 +66,7 @@ function Todo() {
       alert("All fields must be filled out.");
       return;
     }
+
     axios
       .post(`${backendUrl}/addTodoList`, {
         task: newTask,
@@ -61,13 +75,34 @@ function Todo() {
       })
       .then((res) => {
         console.log(res);
+        // Update the state with the new task
+        setTodoList([...todoList, res.data]);
         setNewTask("");
         setNewStatus("");
         setNewDeadline("");
         setConnectionStatus("Task added successfully");
-        setLoading(true);
+        setLoading(false); // Set loading to false to trigger a re-render
       })
       .catch(handleErrors);
+  };
+
+  const deleteTask = (id) => {
+    axios
+      .delete(`${backendUrl}/deleteTodoList/${id}`)
+      .then((result) => {
+        console.log(result);
+        setConnectionStatus("Task deleted successfully");
+        // Remove the deleted task from the state
+        const updatedTodoList = todoList.filter((task) => task._id !== id);
+        console.log("Updated Todo List:", updatedTodoList);
+        setTodoList(updatedTodoList);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error deleting task:", error);
+        setConnectionStatus("Failed to delete task");
+        setLoading(false);
+      });
   };
 
   const saveEditedTask = (id) => {
@@ -86,25 +121,23 @@ function Todo() {
       .post(`${backendUrl}/updateTodoList/${id}`, editedData)
       .then((result) => {
         console.log(result);
+        // Update the state with the edited task
+        setTodoList((prevTodoList) => {
+          const updatedTodoList = prevTodoList.map((task) =>
+            task._id === id ? { ...task, ...editedData } : task
+          );
+          return updatedTodoList;
+        });
         setEditableId(null);
         setEditedTask("");
         setEditedStatus("");
         setEditedDeadline("");
         setConnectionStatus("Task updated successfully");
-        setLoading(true);
       })
-      .catch(handleErrors);
-  };
-
-  const deleteTask = (id) => {
-    axios
-      .delete(`${backendUrl}/deleteTodoList/${id}`)
-      .then((result) => {
-        console.log(result);
-        setConnectionStatus("Task deleted successfully");
-        setLoading(true);
-      })
-      .catch(handleErrors);
+      .catch(handleErrors)
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   function isDeadlinePassed(deadline) {
@@ -122,7 +155,10 @@ function Todo() {
     <div className="container mt-5">
       <div className="row">
         <div className="col-md-12">
-          <div className={`alert ${loading ? 'alert-info' : 'alert-success'}`} role="alert">
+          <div
+            className={`alert ${loading ? "alert-info" : "alert-success"}`}
+            role="alert"
+          >
             {loading ? "Loading tasks..." : connectionStatus}
           </div>
         </div>
@@ -158,17 +194,31 @@ function Todo() {
                       </td>
                       <td>
                         {editableId === data._id ? (
-                          <input
-                            type="text"
+                          <select
                             className="form-control"
                             value={editedStatus}
                             onChange={(e) => setEditedStatus(e.target.value)}
-                          />
+                          >
+                            <option value="" disabled>
+                              Select Status
+                            </option>
+                            {statusOptions.map((status) => (
+                              <option key={status} value={status}>
+                                {status}
+                              </option>
+                            ))}
+                          </select>
                         ) : (
                           data.status
                         )}
                       </td>
-                      <td className={isDeadlinePassed(data.deadline) ? 'deadline-passed' : ''}>
+                      <td
+                        className={
+                          isDeadlinePassed(data.deadline)
+                            ? "deadline-passed"
+                            : ""
+                        }
+                      >
                         {editableId === data._id ? (
                           <input
                             type="datetime-local"
@@ -237,13 +287,20 @@ function Todo() {
             </div>
             <div className="mb-3">
               <label>Status</label>
-              <input
+              <select
                 className="form-control"
-                type="text"
-                placeholder="Enter Status"
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-              />
+              >
+                <option value="" disabled>
+                  Select Status
+                </option>
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="mb-3">
               <label>Deadline</label>
@@ -265,4 +322,3 @@ function Todo() {
 }
 
 export default Todo;
-
