@@ -11,8 +11,14 @@ function Todo() {
   const [newDeadline, setNewDeadline] = useState("");
   const [editedDeadline, setEditedDeadline] = useState("");
   const [connectionStatus, setConnectionStatus] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;// || "https://api.mrstjch.com";
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  const handleErrors = (error) => {
+    console.error("Error:", error);
+    setConnectionStatus("Failed to connect to the backend");
+  };
 
   // Fetch tasks from the backend
   useEffect(() => {
@@ -21,14 +27,11 @@ function Todo() {
       .then((result) => {
         setTodoList(result.data);
         setConnectionStatus("Connected to backend");
+        setLoading(false);
       })
-      .catch((err) => {
-        console.log(err);
-        setConnectionStatus("Failed to connect to backend");
-      });
+      .catch(handleErrors);
   }, [backendUrl]);
 
-  // Function to toggle the editable state for a specific row
   const toggleEditable = (id) => {
     const rowData = todoList.find((data) => data._id === id);
     if (rowData) {
@@ -44,7 +47,6 @@ function Todo() {
     }
   };
 
-  // Function to add task to the database
   const addTask = (e) => {
     e.preventDefault();
     if (!newTask || !newStatus || !newDeadline) {
@@ -59,12 +61,15 @@ function Todo() {
       })
       .then((res) => {
         console.log(res);
-        window.location.reload();
+        setNewTask("");
+        setNewStatus("");
+        setNewDeadline("");
+        setConnectionStatus("Task added successfully");
+        setLoading(true);
       })
-      .catch((err) => console.log(err));
+      .catch(handleErrors);
   };
 
-  // Function to save edited data to the database
   const saveEditedTask = (id) => {
     const editedData = {
       task: editedTask,
@@ -72,42 +77,53 @@ function Todo() {
       deadline: editedDeadline,
     };
 
-    // If the fields are empty
     if (!editedTask || !editedStatus || !editedDeadline) {
       alert("All fields must be filled out.");
       return;
     }
 
     axios
-      .post(`${backendUrl}/updateTodoList/` + id, editedData)
+      .post(`${backendUrl}/updateTodoList/${id}`, editedData)
       .then((result) => {
         console.log(result);
         setEditableId(null);
         setEditedTask("");
         setEditedStatus("");
-        setEditedDeadline(""); // Clear the edited deadline
-        window.location.reload();
+        setEditedDeadline("");
+        setConnectionStatus("Task updated successfully");
+        setLoading(true);
       })
-      .catch((err) => console.log(err));
+      .catch(handleErrors);
   };
 
-  // Delete task from database
   const deleteTask = (id) => {
     axios
-      .delete(`${backendUrl}/deleteTodoList/` + id)
+      .delete(`${backendUrl}/deleteTodoList/${id}`)
       .then((result) => {
         console.log(result);
-        window.location.reload();
+        setConnectionStatus("Task deleted successfully");
+        setLoading(true);
       })
-      .catch((err) => console.log(err));
+      .catch(handleErrors);
   };
+
+  function isDeadlinePassed(deadline) {
+    if (!deadline) {
+      return false;
+    }
+
+    const deadlineDate = new Date(deadline);
+    const currentDate = new Date();
+
+    return deadlineDate < currentDate;
+  }
 
   return (
     <div className="container mt-5">
       <div className="row">
         <div className="col-md-12">
-          <div className="alert alert-info" role="alert">
-            {connectionStatus}
+          <div className={`alert ${loading ? 'alert-info' : 'alert-success'}`} role="alert">
+            {loading ? "Loading tasks..." : connectionStatus}
           </div>
         </div>
       </div>
@@ -152,7 +168,7 @@ function Todo() {
                           data.status
                         )}
                       </td>
-                      <td>
+                      <td className={isDeadlinePassed(data.deadline) ? 'deadline-passed' : ''}>
                         {editableId === data._id ? (
                           <input
                             type="datetime-local"
@@ -161,7 +177,10 @@ function Todo() {
                             onChange={(e) => setEditedDeadline(e.target.value)}
                           />
                         ) : data.deadline ? (
-                          new Date(data.deadline).toLocaleString()
+                          new Date(data.deadline).toLocaleString("en-US", {
+                            timeZone: "Asia/Kolkata",
+                            hour12: true,
+                          })
                         ) : (
                           ""
                         )}
@@ -196,7 +215,7 @@ function Todo() {
               ) : (
                 <tbody>
                   <tr>
-                    <td colSpan="4">Loading products...</td>
+                    <td colSpan="4">Loading tasks...</td>
                   </tr>
                 </tbody>
               )}
@@ -212,6 +231,7 @@ function Todo() {
                 className="form-control"
                 type="text"
                 placeholder="Enter Task"
+                value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
               />
             </div>
@@ -221,6 +241,7 @@ function Todo() {
                 className="form-control"
                 type="text"
                 placeholder="Enter Status"
+                value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
               />
             </div>
@@ -229,6 +250,7 @@ function Todo() {
               <input
                 className="form-control"
                 type="datetime-local"
+                value={newDeadline}
                 onChange={(e) => setNewDeadline(e.target.value)}
               />
             </div>
