@@ -17,7 +17,7 @@ COPY . .
 EXPOSE 3000
 
 # Set the environment variable
-ENV BACKEND_URL=http://127.0.0.1:3001
+ENV BACKEND_URL=http://127.0.0.1:3002
 
 # Start the application
 CMD ["npm", "start"]
