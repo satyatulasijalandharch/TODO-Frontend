@@ -12,6 +12,9 @@ RUN apk --no-cache add tzdata
 
 # Set the timezone to Asia/Kolkata
 ENV TZ Asia/Kolkata
+
+ENV REACT_APP_BACKEND_UR=$REACT_APP_BACKEND_UR
+ENV PORT=$PORT
 # Install app dependencies
 RUN npm install
 
@@ -19,10 +22,7 @@ RUN npm install
 COPY . .
 
 # Expose port 3000 for external access
-EXPOSE 3000
-
-# # Set the environment variable
-# ENV BACKEND_URL=http://127.0.0.1:3002
+EXPOSE $PORT
 
 # Start the application
 CMD ["npm", "start"]
