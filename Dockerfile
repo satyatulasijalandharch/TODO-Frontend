@@ -13,7 +13,7 @@ RUN apk --no-cache add tzdata
 # Set the timezone to Asia/Kolkata
 ENV TZ Asia/Kolkata
 
-ENV REACT_APP_BACKEND_UR=$REACT_APP_BACKEND_UR
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 ENV PORT=$PORT
 # Install app dependencies
 RUN npm install
