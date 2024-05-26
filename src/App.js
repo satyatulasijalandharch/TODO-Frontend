@@ -10,7 +10,7 @@ function App() {
   } 
   return ( 
     <div> 
-      <h1 style={headStyle}>Todo List</h1> 
+      <h1 style={headStyle}>Todo List v1</h1> 
       <BrowserRouter> 
         <Routes> 
           <Route path='/' element={<Todo/>}></Route> 
