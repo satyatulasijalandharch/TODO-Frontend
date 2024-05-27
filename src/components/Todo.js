@@ -164,6 +164,50 @@ function Todo() {
         </div>
       </div>
       <div className="row">
+        <div className="col-md-5">
+          <h2 className="text-center">Add Task</h2>
+          <form className="bg-light p-4">
+            <div className="mb-3">
+              <label>Task</label>
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Enter Task"
+                value={newTask}
+                onChange={(e) => setNewTask(e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label>Status</label>
+              <select
+                className="form-control"
+                value={newStatus}
+                onChange={(e) => setNewStatus(e.target.value)}
+              >
+                <option value="" disabled>
+                  Select Status
+                </option>
+                {statusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label>Deadline</label>
+              <input
+                className="form-control"
+                type="datetime-local"
+                value={newDeadline}
+                onChange={(e) => setNewDeadline(e.target.value)}
+              />
+            </div>
+            <button onClick={addTask} className="btn btn-success btn-sm">
+              Add Task
+            </button>
+          </form>
+        </div>
         <div className="col-md-7">
           <h2 className="text-center">Todo List</h2>
           <div className="table-responsive">
@@ -271,50 +315,6 @@ function Todo() {
               )}
             </table>
           </div>
-        </div>
-        <div className="col-md-5">
-          <h2 className="text-center">Add Task</h2>
-          <form className="bg-light p-4">
-            <div className="mb-3">
-              <label>Task</label>
-              <input
-                className="form-control"
-                type="text"
-                placeholder="Enter Task"
-                value={newTask}
-                onChange={(e) => setNewTask(e.target.value)}
-              />
-            </div>
-            <div className="mb-3">
-              <label>Status</label>
-              <select
-                className="form-control"
-                value={newStatus}
-                onChange={(e) => setNewStatus(e.target.value)}
-              >
-                <option value="" disabled>
-                  Select Status
-                </option>
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-3">
-              <label>Deadline</label>
-              <input
-                className="form-control"
-                type="datetime-local"
-                value={newDeadline}
-                onChange={(e) => setNewDeadline(e.target.value)}
-              />
-            </div>
-            <button onClick={addTask} className="btn btn-success btn-sm">
-              Add Task
-            </button>
-          </form>
         </div>
       </div>
     </div>
